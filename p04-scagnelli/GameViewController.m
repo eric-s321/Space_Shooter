@@ -9,24 +9,23 @@
 #import "GameViewController.h"
 #import "GameScene.h"
 
-@implementation GameViewController
+@implementation GameViewController{
+    GameScene *gameScene;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    // Load the SKScene from 'GameScene.sks'
-    GameScene *scene = (GameScene *)[SKScene nodeWithFileNamed:@"GameScene"];
-    
-    // Set the scale mode to scale to fit the window
-    scene.scaleMode = SKSceneScaleModeAspectFill;
     
     SKView *skView = (SKView *)self.view;
     
-    // Present the scene
-    [skView presentScene:scene];
-    
     skView.showsFPS = YES;
     skView.showsNodeCount = YES;
+    
+    // Set up game scene and size to the size of the view
+    gameScene = [[GameScene alloc] initWithSize:skView.bounds.size];
+    gameScene.scaleMode = SKSceneScaleModeAspectFill;
+     
+    [skView presentScene:gameScene];
 }
 
 - (BOOL)shouldAutorotate {

@@ -343,6 +343,7 @@
 				TargetAttributes = {
 					B60017B11E663CA90088D313 = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = ZF6U863PUS;
 						ProvisioningStyle = Automatic;
 					};
 					B60017D11E663CAA0088D313 = {
@@ -588,6 +589,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZF6U863PUS;
 				INFOPLIST_FILE = "p04-scagnelli/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "escagne1.p04-scagnelli";
@@ -599,6 +601,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZF6U863PUS;
 				INFOPLIST_FILE = "p04-scagnelli/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "escagne1.p04-scagnelli";
@@ -671,6 +674,7 @@
 				B60017E81E663CAA0088D313 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B60017E91E663CAA0088D313 /* Build configuration list for PBXNativeTarget "p04-scagnelliTests" */ = {
 			isa = XCConfigurationList;
@@ -679,6 +683,7 @@
 				B60017EB1E663CAA0088D313 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B60017EC1E663CAA0088D313 /* Build configuration list for PBXNativeTarget "p04-scagnelliUITests" */ = {
 			isa = XCConfigurationList;
@@ -687,6 +692,7 @@
 				B60017EE1E663CAA0088D313 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
