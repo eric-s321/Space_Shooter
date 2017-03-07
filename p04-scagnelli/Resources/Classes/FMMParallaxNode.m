@@ -45,7 +45,8 @@
             node.anchorPoint = CGPointZero;
             node.position = CGPointMake(size.width * idx, 0.0);
             node.name = @"background";
-            //NSLog(@"node.position = x=%f,y=%f",node.position.x,node.position.y);
+            NSLog(@"node.position = x=%f,y=%f",node.position.x,node.position.y);
+            NSLog(@"idx is %lu", idx);
             [_backgrounds addObject:node];
             [self addChild:node];
         }];
