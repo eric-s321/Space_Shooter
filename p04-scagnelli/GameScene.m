@@ -18,12 +18,18 @@
     FMMParallaxNode *parallaxNodeBackgrounds;
     FMMParallaxNode *parallaxNodeSpaceDust;
     CMMotionManager *motionManager;
+    int numAsteroids;
+    NSMutableArray *asteroids;
+    int asteroidIndex;
+    double nextAsteroidSpawnTime;
 }
 
 -(id)initWithSize:(CGSize)size{
     
     self = [super initWithSize:size];
     if(self){
+        numAsteroids = 15;
+        
         NSLog(@"The size of the game scene is %f x %f", size.width, size.height);
         
         self.backgroundColor = [UIColor blackColor];
@@ -63,6 +69,17 @@
         [self addChild:ship];
         
 #pragma mark - TBD - Setup the asteroids
+        
+        asteroids = [[NSMutableArray alloc] initWithCapacity:numAsteroids];
+        
+        for(int i = 0; i < numAsteroids; i++){
+            SKSpriteNode *asteriod = [SKSpriteNode spriteNodeWithImageNamed:@"asteroid"];
+            asteriod.hidden = YES;
+            [asteriod setXScale:.5];
+            [asteriod setYScale:.5];
+            [asteroids addObject:asteriod];
+            [self addChild:asteriod];
+        }
         
 #pragma mark - TBD - Setup the lasers
         
@@ -119,10 +136,46 @@
     }
 }
 
--(void)update:(NSTimeInterval)currentTime{
+
+//Generates a random float between low and high
+-(float)randomValueBetween:(float)low andValue:(float)high {
+    
+    //arc4random()/0xFFFFFFFF gives between 0-1 and then we adjust that accordingly
+    return (((float) arc4random() / 0xFFFFFFFFu) * (high - low)) + low;
+}
+
+- (void)update:(NSTimeInterval)currentTime{
     [parallaxNodeBackgrounds update:currentTime];
     [parallaxNodeSpaceDust update:currentTime];
     [self updateShipPositionFromMotionManager];
+    
+    double time = CACurrentMediaTime();
+    if(time > nextAsteroidSpawnTime){
+        float randSecs = [self randomValueBetween:0.4 andValue:1.0];
+        nextAsteroidSpawnTime = randSecs + time;
+        
+        float yPos = [self randomValueBetween:0 andValue:self.frame.size.height];
+        float duration = [self randomValueBetween:4 andValue:10];
+        
+        SKSpriteNode *asteroid = [asteroids objectAtIndex:asteroidIndex % [asteroids count]];
+        asteroidIndex++;
+        
+        asteroid.position = CGPointMake(self.frame.size.width+asteroid.size.width/2, yPos);
+        asteroid.hidden = NO;
+        
+        //CGPoint location = CGPointMake(-self.frame.size.width-asteroid.size.width, yPos);
+        CGPoint location = CGPointMake(0-asteroid.size.width, yPos);
+        
+        SKAction *moveAction = [SKAction moveTo:location duration:duration];
+        SKAction *doneAction = [SKAction runBlock:(dispatch_block_t)^() {
+            NSLog(@"Done");
+            asteroid.hidden = YES;
+        }];
+        
+        SKAction *moveAsteroidActionWithDone = [SKAction sequence:@[moveAction, doneAction]];
+        [asteroid runAction:moveAsteroidActionWithDone];
+    }
+    //NSLog(@"%f", [self randomValueBetween:10 andValue:20]);
 }
 
 @end
