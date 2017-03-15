@@ -18,10 +18,17 @@
     FMMParallaxNode *parallaxNodeBackgrounds;
     FMMParallaxNode *parallaxNodeSpaceDust;
     CMMotionManager *motionManager;
+    
     int numAsteroids;
     NSMutableArray *asteroids;
     int asteroidIndex;
     double nextAsteroidSpawnTime;
+    
+    int numLasers;
+    NSMutableArray *lasers;
+    int nextLaser;
+    
+    float laserSpeed;
 }
 
 -(id)initWithSize:(CGSize)size{
@@ -29,6 +36,8 @@
     self = [super initWithSize:size];
     if(self){
         numAsteroids = 15;
+        numLasers = 10;
+        laserSpeed = 1;
         
         NSLog(@"The size of the game scene is %f x %f", size.width, size.height);
         
@@ -82,6 +91,14 @@
         }
         
 #pragma mark - TBD - Setup the lasers
+        lasers = [[NSMutableArray alloc] initWithCapacity:numLasers];
+        for(int i = 0; i < numLasers; i++){
+            SKSpriteNode *laser = [SKSpriteNode spriteNodeWithImageNamed:@"laserbeam_blue"];
+            laser.hidden = YES;
+            [lasers addObject:laser];
+            [self addChild:laser];
+        }
+        
         
 #pragma mark - Setup the Accelerometer to move the ship
         motionManager = [[CMMotionManager alloc] init];
@@ -131,8 +148,8 @@
 - (void)updateShipPositionFromMotionManager{
     CMAccelerometerData* data = motionManager.accelerometerData;
     if (fabs(data.acceleration.x) > 0.2) {
-        [ship.physicsBody applyForce:CGVectorMake(0.0, 50 * (data.acceleration.x + .5))];
-        NSLog(@"Acceleration is %f", data.acceleration.x + .5);
+        [ship.physicsBody applyForce:CGVectorMake(0.0, 35 * (data.acceleration.x + .5))];
+    //    NSLog(@"Acceleration is %f", data.acceleration.x + .5);
     }
 }
 
@@ -168,14 +185,36 @@
         
         SKAction *moveAction = [SKAction moveTo:location duration:duration];
         SKAction *doneAction = [SKAction runBlock:(dispatch_block_t)^() {
-            NSLog(@"Done");
+         //   NSLog(@"Done");
             asteroid.hidden = YES;
         }];
         
         SKAction *moveAsteroidActionWithDone = [SKAction sequence:@[moveAction, doneAction]];
         [asteroid runAction:moveAsteroidActionWithDone];
     }
-    //NSLog(@"%f", [self randomValueBetween:10 andValue:20]);
+}
+
+//Called automatically when a touch is sensed
+-(void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    NSLog(@"Touched");
+    
+    //Pick the next laser we've already allocated
+    SKSpriteNode *laser = [lasers objectAtIndex:nextLaser % numLasers];
+    nextLaser++;
+    
+    //Put laser at right end of ship
+    laser.position = CGPointMake(ship.frame.origin.x + ship.size.width, ship.position.y);
+    laser.hidden = NO; //Make laser visible
+    
+    //Set up laser moving actions
+    CGPoint location = CGPointMake(self.frame.size.width, ship.position.y);
+    SKAction *moveLaser = [SKAction moveTo:location duration:laserSpeed];
+    SKAction *moveComplete = [SKAction runBlock:^{
+        laser.hidden = YES;
+    }];
+    
+    SKAction *moveLaserAction = [SKAction sequence:@[moveLaser, moveComplete]];
+    [laser runAction:moveLaserAction];
 }
 
 @end
