@@ -7,8 +7,11 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+@protocol GameScoreDelegate;
 
 @interface GameScene : SKScene
+
+@property (nonatomic, strong) id<GameScoreDelegate>labelDelegate;
 
 -(SKEmitterNode *) loadEmitterNode:(NSString *)fileName;
 -(void)startTheGame;
@@ -20,5 +23,10 @@
 -(void) checkForCollisions;
 -(void)endGame;
 -(void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-    
+
+@end
+
+@protocol GameScoreDelegate
+-(void)scoreChanged:(int)newScore;
+-(void)lifeChanged:(int)newLife;
 @end

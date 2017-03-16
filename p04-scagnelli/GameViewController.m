@@ -13,6 +13,9 @@
     GameScene *gameScene;
 }
 
+@synthesize scoreLabel;
+@synthesize lifeLabel;
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -26,6 +29,8 @@
     // Set up game scene and size to the size of the view
     gameScene = [[GameScene alloc] initWithSize:skView.bounds.size];
     gameScene.scaleMode = SKSceneScaleModeAspectFill;
+    
+    [gameScene setLabelDelegate:self];
      
     [skView presentScene:gameScene];
 }
@@ -49,6 +54,17 @@
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+-(void)scoreChanged:(int)newScore
+{
+    NSLog(@"New score.  Change the label here");
+    scoreLabel.text = [NSString stringWithFormat:@"Score: %d", newScore];
+}
+
+-(void)lifeChanged:(int)newLife
+{
+    lifeLabel.text = [NSString stringWithFormat:@"Lives: %d", newLife];
 }
 
 @end

@@ -32,6 +32,7 @@
     
     float laserSpeed;
     int lives;
+    int score;
 }
 
 -(id)initWithSize:(CGSize)size{
@@ -131,6 +132,9 @@
 -(void)startTheGame{
     ship.hidden = NO;
     ship.position = CGPointMake(self.frame.size.width * .1, CGRectGetMidY(self.frame));
+    score = 0;
+    [_labelDelegate scoreChanged:0];
+    [_labelDelegate lifeChanged:5];
    
     lives = NUM_LIVES;
     nextAsteroidSpawnTime = 0;
@@ -242,6 +246,8 @@
                 //Hide the two object that just were destroyed
                 laser.hidden = YES;
                 asteriod.hidden = YES;
+                score += 100;
+                [_labelDelegate scoreChanged:score];
                 continue;
             }
         }
@@ -253,7 +259,10 @@
                                                        [SKAction fadeInWithDuration:.1]]];
             SKAction *blinkMultipleTimes = [SKAction repeatAction:blinkShip count:4];
             [ship runAction:blinkMultipleTimes];
-            lives--; //Take away one life
+            if(!ship.hidden){
+                lives--; //Take away one life
+                [_labelDelegate lifeChanged:lives];
+            }
         }
     }
 }

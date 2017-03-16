@@ -11,8 +11,10 @@
 #import <GameplayKit/GameplayKit.h>
 #import "GameScene.h"
 
-@interface GameViewController : UIViewController
+@interface GameViewController : UIViewController<GameScoreDelegate>
 
 //@property(strong, nonatomic) IBOutlet GameScene *gameScene;
+@property (strong, nonatomic) IBOutlet UILabel *scoreLabel;
+@property (strong, nonatomic) IBOutlet UILabel *lifeLabel;
 
 @end
