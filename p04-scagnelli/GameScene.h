@@ -10,4 +10,15 @@
 
 @interface GameScene : SKScene
 
+-(SKEmitterNode *) loadEmitterNode:(NSString *)fileName;
+-(void)startTheGame;
+-(void)startMonitoringAcceleration;
+-(void)stopMonitoringAcceleration;
+-(void)updateShipPositionFromMotionManager;
+-(float)randomValueBetween:(float)low andValue:(float)high;
+-(void)update:(NSTimeInterval)currentTime;
+-(void) checkForCollisions;
+-(void)endGame;
+-(void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
+    
 @end

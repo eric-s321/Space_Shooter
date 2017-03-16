@@ -13,6 +13,8 @@
 #import "GameScene.h"
 #import "FMMParallaxNode.h"
 
+#define NUM_LIVES 5
+
 @implementation GameScene {
     SKSpriteNode *ship;
     FMMParallaxNode *parallaxNodeBackgrounds;
@@ -29,6 +31,7 @@
     int nextLaser;
     
     float laserSpeed;
+    int lives;
 }
 
 -(id)initWithSize:(CGSize)size{
@@ -38,6 +41,7 @@
         numAsteroids = 15;
         numLasers = 10;
         laserSpeed = 1;
+        lives = NUM_LIVES;
         
         NSLog(@"The size of the game scene is %f x %f", size.width, size.height);
         
@@ -127,6 +131,17 @@
 -(void)startTheGame{
     ship.hidden = NO;
     ship.position = CGPointMake(self.frame.size.width * .1, CGRectGetMidY(self.frame));
+   
+    lives = NUM_LIVES;
+    nextAsteroidSpawnTime = 0;
+    
+    for (SKSpriteNode *asteriod in asteroids){
+        asteriod.hidden = YES;
+    }
+    
+    for (SKSpriteNode *laser in lasers) {
+        laser.hidden = YES;
+    }
     
     [self startMonitoringAcceleration];
 }
@@ -148,7 +163,7 @@
 - (void)updateShipPositionFromMotionManager{
     CMAccelerometerData* data = motionManager.accelerometerData;
     if (fabs(data.acceleration.x) > 0.2) {
-        [ship.physicsBody applyForce:CGVectorMake(0.0, 35 * (data.acceleration.x + .5))];
+        [ship.physicsBody applyForce:CGVectorMake(0.0, 35 * data.acceleration.x)];
     //    NSLog(@"Acceleration is %f", data.acceleration.x + .5);
     }
 }
@@ -174,8 +189,10 @@
         float yPos = [self randomValueBetween:0 andValue:self.frame.size.height];
         float duration = [self randomValueBetween:4 andValue:10];
         
-        SKSpriteNode *asteroid = [asteroids objectAtIndex:asteroidIndex % [asteroids count]];
+        SKSpriteNode *asteroid = [asteroids objectAtIndex:asteroidIndex % numAsteroids];
         asteroidIndex++;
+        
+        [asteroid removeAllActions];
         
         asteroid.position = CGPointMake(self.frame.size.width+asteroid.size.width/2, yPos);
         asteroid.hidden = NO;
@@ -192,11 +209,88 @@
         SKAction *moveAsteroidActionWithDone = [SKAction sequence:@[moveAction, doneAction]];
         [asteroid runAction:moveAsteroidActionWithDone];
     }
+    
+    [self checkForCollisions];
+    
+    if(lives == 0){
+        NSLog(@"Calling End Game");
+        [self performSelectorOnMainThread:@selector(endGame) withObject:nil waitUntilDone:YES];
+        //[self endGame];
+    }
+    
+    /*
+    int visibileAsteriods = 0;
+    for(SKSpriteNode *asteriod in asteroids){
+        if (!asteriod.hidden)
+            visibileAsteriods++;
+    }
+    NSLog(@"%d asteriods visible", visibileAsteriods);
+    */
+}
+
+-(void) checkForCollisions{
+    for (SKSpriteNode *asteriod in asteroids){
+        if (asteriod.hidden)
+            continue;
+        
+        for(SKSpriteNode *laser in lasers){
+            if(laser.hidden)
+                continue;
+            
+            if([laser intersectsNode:asteriod]){
+                NSLog(@"Laser hit asteriod!");
+                //Hide the two object that just were destroyed
+                laser.hidden = YES;
+                asteriod.hidden = YES;
+                continue;
+            }
+        }
+        
+        //The ship hit the asteriod!
+        if([ship intersectsNode:asteriod]){
+            asteriod.hidden = YES;
+            SKAction *blinkShip = [SKAction sequence:@[[SKAction fadeOutWithDuration:.1],
+                                                       [SKAction fadeInWithDuration:.1]]];
+            SKAction *blinkMultipleTimes = [SKAction repeatAction:blinkShip count:4];
+            [ship runAction:blinkMultipleTimes];
+            lives--; //Take away one life
+        }
+    }
+}
+
+-(void)endGame{
+    lives = -1; //Change lives from 0 so endGame does not get called multiple times
+    [self removeAllActions];
+    [self stopMonitoringAcceleration];
+    
+    ship.hidden = YES;
+    
+    SKLabelNode *playAgainLabel = [[SKLabelNode alloc]
+                                   initWithFontNamed:@"Avenir"];
+    playAgainLabel.name = @"playAgainLabel";
+    playAgainLabel.text = @"Play Again?";
+    playAgainLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height * .5);
+    playAgainLabel.fontColor = [UIColor greenColor];
+    [self addChild:playAgainLabel];
+    
+   // SKAction *labelScaleAction = [SKAction scaleTo:1.0 duration:0.5];
+    //[playAgainLabel runAction:labelScaleAction];
 }
 
 //Called automatically when a touch is sensed
 -(void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    NSLog(@"Touched");
+    //NSLog(@"Touched");
+    
+    for(UITouch *touch in touches){
+        SKNode *nodeTouched = [self nodeAtPoint:[touch locationInNode:self]];
+        if(nodeTouched != self && [nodeTouched.name isEqualToString:@"playAgainLabel"]){
+            NSLog(@"IN IF");
+            [nodeTouched removeFromParent];
+//            [[self childNodeWithName:@"layAgainLabel"] removeFromParent];
+            [self startTheGame];
+            return;
+        }
+    }
     
     //Pick the next laser we've already allocated
     SKSpriteNode *laser = [lasers objectAtIndex:nextLaser % numLasers];
@@ -205,6 +299,7 @@
     //Put laser at right end of ship
     laser.position = CGPointMake(ship.frame.origin.x + ship.size.width, ship.position.y);
     laser.hidden = NO; //Make laser visible
+    [laser removeAllActions];
     
     //Set up laser moving actions
     CGPoint location = CGPointMake(self.frame.size.width, ship.position.y);

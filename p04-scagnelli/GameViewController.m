@@ -18,8 +18,10 @@
     
     SKView *skView = (SKView *)self.view;
     
+    /*
     skView.showsFPS = YES;
     skView.showsNodeCount = YES;
+    */
     
     // Set up game scene and size to the size of the view
     gameScene = [[GameScene alloc] initWithSize:skView.bounds.size];
